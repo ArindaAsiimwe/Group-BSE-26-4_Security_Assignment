@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Transfer Funds - 8TechBank Secure{% endblock %}
+{% block content %}
+<div class="form-container">
+    <div class="form-box">
+        <h2>Transfer Funds</h2>
+        {% if error %}<div class="error-message">{{ error | e }}</div>{% endif %}
+        <form method="POST" action="{{ url_for('transfer') }}">
+            <!-- FIX 3: CSRF token — attacker's page cannot forge this -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="to_account">To Account:</label>
+                <select id="to_account" name="to_account" required>
+                    <option value="">Select an account</option>
+                    {% for account in accounts %}
+                    <!-- FIX 2: Jinja2 auto-escapes all output (no | safe) -->
+                    <option value="{{ account['id'] }}">{{ account['account_number'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount (UGX):</label>
+                <input type="number" id="amount" name="amount" step="0.01" min="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="note">Note/Description:</label>
+                <textarea id="note" name="note" rows="4" maxlength="500"></textarea>
+                <small>Max 500 characters</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Send Transfer</button>
+        </form>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

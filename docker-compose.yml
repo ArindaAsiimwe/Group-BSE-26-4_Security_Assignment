@@ -1,0 +1,114 @@
+# ============================================================
+# docker-compose.yml — 8TechBank Sandbox Design
+# Task 4.3: Application Sandboxing
+#
+# Network segmentation:
+#   - frontend network: nginx (web) ↔ app server
+#   - backend network:  app server ↔ database
+#   - App never exposed directly to internet (nginx reverse proxy)
+#   - Database isolated in backend network only
+# ============================================================
+
+version: "3.9"
+
+networks:
+  # Web-tier: nginx proxy ↔ application server
+  frontend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+  # App-tier: application server ↔ database
+  backend:
+    driver: bridge
+    internal: true          # No external internet access for backend
+    ipam:
+      config:
+        - subnet: 172.20.1.0/24
+
+services:
+
+  # ── Web / Reverse Proxy ────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"             # Only nginx exposed to host
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - frontend
+    depends_on:
+      - app
+    restart: unless-stopped
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+
+  # ── Application Server ─────────────────────────────────────
+  app:
+    build: .
+    image: 8techbank-secure:latest
+    expose:
+      - "5001"              # NOT published to host — only nginx can reach it
+    networks:
+      - frontend
+      - backend
+    environment:
+      SECRET_KEY: "${SECRET_KEY}"
+      JWT_SECRET: "${JWT_SECRET}"
+    volumes:
+      # Read-only app source; only /tmp is writable
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 50m
+    # Run with read-only root filesystem
+    read_only: true
+    # Drop all Linux capabilities — add only what's needed
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 64M
+    restart: unless-stopped
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Database (SQLite via volume — or swap for Postgres) ────
+  db:
+    image: alpine:3.19
+    volumes:
+      - db_data:/data
+    networks:
+      - backend             # Only reachable from app — never from internet
+    command: ["sh", "-c", "tail -f /dev/null"]   # Placeholder; swap for postgres:16-alpine
+    read_only: true
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+    restart: unless-stopped
+
+volumes:
+  db_data:
+    driver: local

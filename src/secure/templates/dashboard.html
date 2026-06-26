@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - 8TechBank Secure{% endblock %}
+{% block content %}
+<div class="dashboard">
+    <!-- FIX 2: | e filter ensures output encoding — no raw HTML injection -->
+    <h2>Welcome, {{ username | e }}</h2>
+    <div class="accounts-section">
+        <h3>Your Accounts</h3>
+        {% if accounts %}
+        <table class="accounts-table">
+            <thead><tr><th>Account Number</th><th>Balance</th><th>Action</th></tr></thead>
+            <tbody>
+                {% for account in accounts %}
+                <tr>
+                    <td>{{ account['account_number'] | e }}</td>
+                    <td>UGX {{ "%.2f"|format(account['balance']) }}</td>
+                    <td><a href="{{ url_for('view_account', account_id=account['id']) }}" class="btn btn-small">View</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<p>No accounts found.</p>{% endif %}
+    </div>
+    <div class="transactions-section">
+        <h3>Recent Transactions</h3>
+        {% if transactions %}
+        <table class="transactions-table">
+            <thead><tr><th>From</th><th>To</th><th>Amount</th><th>Note</th><th>Date</th></tr></thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction['from_acct'] }}</td>
+                    <td>{{ transaction['to_acct'] }}</td>
+                    <td>UGX {{ "%.2f"|format(transaction['amount']) }}</td>
+                    <!-- FIX 2: No | safe filter — Jinja2 auto-escapes; stored XSS neutralized -->
+                    <td>{{ transaction['note'] }}</td>
+                    <td>{{ transaction['timestamp'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<p>No transactions yet.</p>{% endif %}
+    </div>
+    <a href="{{ url_for('transfer') }}" class="btn btn-primary">Make a Transfer</a>
+</div>
+{% endblock %}

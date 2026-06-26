@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Login - 8TechBank Secure{% endblock %}
+{% block content %}
+<div class="form-container">
+    <div class="form-box">
+        <h2>Login to 8TechBank</h2>
+        {% if error %}<div class="error-message">{{ error | e }}</div>{% endif %}
+        <form method="POST" action="{{ url_for('login') }}">
+            <!-- FIX 3: CSRF token embedded in every state-changing form -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <p class="form-footer">Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+    </div>
+</div>
+{% endblock %}

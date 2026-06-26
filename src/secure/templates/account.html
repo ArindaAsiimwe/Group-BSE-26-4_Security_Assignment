@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Account Details - 8TechBank Secure{% endblock %}
+{% block content %}
+<div class="form-container">
+    <div class="form-box">
+        <h2>Account Details</h2>
+        <!-- FIX 4: Only the authorized account owner sees this page -->
+        <table class="accounts-table">
+            <tr><th>Account Number</th><td>{{ account['account_number'] | e }}</td></tr>
+            <tr><th>Balance</th><td>UGX {{ "%.2f"|format(account['balance']) }}</td></tr>
+        </table>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

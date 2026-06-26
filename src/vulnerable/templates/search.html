@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Search - 8TechBank{% endblock %}
+{% block content %}
+<div class="search-container">
+    <h2>Search</h2>
+    <form method="GET" action="{{ url_for('search') }}" class="search-form">
+        <input type="text" name="q" placeholder="Search transactions, accounts, etc." required>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    {% if results %}<div class="search-results">{{ results | safe }}</div>{% endif %}
+</div>
+{% endblock %}

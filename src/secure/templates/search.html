@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Search - 8TechBank Secure{% endblock %}
+{% block content %}
+<div class="form-container">
+    <div class="form-box">
+        <h2>Search Transactions</h2>
+        <form method="GET" action="{{ url_for('search') }}">
+            <div class="form-group">
+                <label for="q">Search:</label>
+                <input type="text" id="q" name="q" value="{{ query | e }}" placeholder="Search transactions...">
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+        {% if query %}
+        <!-- FIX 2: query passed through escape() in Python AND auto-escaped here — XSS blocked -->
+        <div class="search-results">
+            <h3>Search Results for: {{ query }}</h3>
+            <p>No results found.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

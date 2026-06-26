@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Register - 8TechBank Secure{% endblock %}
+{% block content %}
+<div class="form-container">
+    <div class="form-box">
+        <h2>Create an Account</h2>
+        {% if error %}<div class="error-message">{{ error | e }}</div>{% endif %}
+        <form method="POST" action="{{ url_for('register') }}">
+            <!-- FIX 3: CSRF token -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required minlength="3" maxlength="30" autocomplete="username">
+                <small>3–30 chars, letters/numbers/underscore only</small>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
+                <small>Minimum 8 characters</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+        <p class="form-footer">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+    </div>
+</div>
+{% endblock %}

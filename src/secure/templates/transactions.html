@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Transactions - 8TechBank Secure{% endblock %}
+{% block content %}
+<div class="dashboard">
+    <h2>Transaction History</h2>
+    {% if transactions %}
+    <table class="transactions-table">
+        <thead>
+            <tr><th>ID</th><th>From</th><th>To</th><th>Amount</th><th>Note</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+            {% for t in transactions %}
+            <tr>
+                <td>{{ t['id'] }}</td>
+                <td>{{ t['from_acct'] }}</td>
+                <td>{{ t['to_acct'] }}</td>
+                <td>UGX {{ "%.2f"|format(t['amount']) }}</td>
+                <!-- FIX 2: Auto-escaped — no | safe — stored XSS neutralized -->
+                <td>{{ t['note'] }}</td>
+                <td>{{ t['timestamp'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No transactions found.</p>
+    {% endif %}
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}

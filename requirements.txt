@@ -1,0 +1,6 @@
+flask>=3.0.0
+bcrypt>=4.1.0
+PyJWT>=2.8.0
+flask-limiter>=3.5.0
+marshmallow>=3.21.0
+markupsafe>=2.1.5
